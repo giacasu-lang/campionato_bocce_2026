@@ -1,0 +1,71 @@
+ 
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campionato Bocce 2026</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 10px; background: #f7f7f7; color: #333; }
+    h1 { text-align: center; color: #2a5d84; }
+    h2 { color: #444; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: left; font-size: 0.9em; }
+    th { background: #2a5d84; color: white; }
+    tr:nth-child(even) { background: #eee; }
+    .loading { font-style: italic; color: #888; }
+    .top-link { display: block; margin-top: 5px; font-size: 0.8em; text-align: right; color: #2a5d84; text-decoration: underline; cursor: pointer; }
+    .powered { margin-top: 20px; text-align: center; font-size: 0.9em; color: #555; }
+  </style>
+</head>
+<body>
+
+<h1>Campionato Bocce 2026</h1>
+
+<div id="contenitore">
+  <p class="loading">Caricamento dati...</p>
+</div>
+
+<div class="powered">Powered by Gianni Casu</div>
+
+<script>
+  const linkJSON = "https://script.google.com/macros/s/AKfycby1x2gBHgo9TteXqajRBw0u8vhVUYePlD4TOaIOO5VpASwsfotVVzSPF9oOpOb80y8M/exec"; // <-- qui metti il link del JSON del backend
+
+  function creaTabella(titolo, dati) {
+    if (!dati || dati.length === 0) return `<h2>${titolo}</h2><p>Nessun dato disponibile</p>`;
+  
+    let html = `<h2>${titolo}</h2><table><tr>`;
+    Object.keys(dati[0]).forEach(k => html += `<th>${k}</th>`);
+    html += `</tr>`;
+  
+    dati.forEach(r => {
+      html += `<tr>`;
+      Object.values(r).forEach(v => html += `<td>${v}</td>`);
+      html += `</tr>`;
+    });
+    html += `</table>`;
+    html += `<span class="top-link" onclick="window.scrollTo({top:0, behavior:'smooth'})">Torna in alto</span>`;
+    return html;
+  }
+
+  async function caricaDati() {
+    try {
+      const response = await fetch(linkJSON);
+      const dati = await response.json();
+      let html = '';
+      html += creaTabella('Seconda Categoria', dati.seconda);
+      html += creaTabella('Terza Categoria', dati.terza);
+      html += creaTabella('Juniores', dati.juniores);
+      html += creaTabella('Femminile', dati.femminile);
+      html += creaTabella('Calendario', dati.calendario);
+      document.getElementById('contenitore').innerHTML = html;
+    } catch(err) {
+      document.getElementById('contenitore').innerHTML = `<p class="loading">Errore nel caricamento dati: ${err}</p>`;
+    }
+  }
+
+  caricaDati();
+</script>
+
+</body>
+</html>
