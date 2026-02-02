@@ -83,7 +83,16 @@
 </footer>
 
 <script>
-const URL_DATI = "INSERISCI QUI IL LINK JSON CHE FUNZIONA";
+const URL_DATI = "https://giacasu-lang.github.io/campionato_%20bocce_2026/dati.json";
+
+// Funzione per formattare le date in gg/mm/yyyy
+function formatDate(d) {
+  if(!d || d.trim()==="") return "";
+  const dt = new Date(d);
+  return dt.getDate().toString().padStart(2,'0') + "/" +
+         (dt.getMonth()+1).toString().padStart(2,'0') + "/" +
+         dt.getFullYear();
+}
 
 fetch(URL_DATI)
   .then(r => r.json())
@@ -96,6 +105,10 @@ fetch(URL_DATI)
         html += `<div class="nodata">Nessun dato disponibile</div></section>`;
         return;
       }
+
+      // Ordina le classifiche per punti discendente
+      righe.sort((a,b) => b.punti - a.punti);
+
       html += `
         <table>
           <tr>
@@ -134,7 +147,7 @@ fetch(URL_DATI)
         </tr>`;
     dati.calendario.forEach(c => {
       html += `<tr>
-        <td>${c.data}</td>
+        <td>${formatDate(c.data)}</td>
         <td>${c.casa}</td>
         <td>${c.ospite}</td>
         <td>${c.campo}</td>
