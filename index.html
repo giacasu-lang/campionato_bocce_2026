@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campionato Bocce 2026</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h2 { margin-top: 40px; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; color: #333; }
+        h1, h2, h3 { margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #f0f0f0; }
+        th { background-color: #e0e0e0; }
         .top-link { font-size: 0.9em; margin-bottom: 20px; display: block; }
-        #admin-section { border: 1px solid #ccc; padding: 10px; margin-top: 40px; }
+        #admin-section { border: 2px solid #444; padding: 15px; margin-top: 30px; background-color: #eee; }
+        #admin-content { margin-top: 15px; padding: 10px; border: 1px solid #aaa; background-color: #fff; }
+        input { padding: 5px; margin-right: 5px; }
+        button { padding: 5px 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -25,19 +28,19 @@
     <a href="#top" class="top-link">Torna in alto</a>
     <p>Powered by Gianni Casu</p>
 
-    <!-- Inizio area amministrazione -->
+    <!-- Inizio area amministrazione (visibile subito per test) -->
     <div id="admin-section" style="display:block;">
       <h3>Area Amministratore</h3>
       <label>Password: <input type="password" id="admin-pass"></label>
       <button onclick="checkPassword()">Accedi</button>
       <div id="admin-content" style="display:none;">
         <p>Qui puoi aggiornare i dati (solo tu vedrai questa sezione)</p>
-        <!-- Qui potremo aggiungere i controlli per modificare JSON -->
       </div>
     </div>
+    <!-- Fine area amministrazione -->
 
     <script>
-        // Funzione base per mostrare/nascondere area amministrazione
+        // Password admin
         const correctPassword = "honor70lite";
         function checkPassword() {
             const pass = document.getElementById("admin-pass").value;
@@ -49,7 +52,7 @@
             }
         }
 
-        // Funzioni per mostrare classifiche e calendario
+        // Dati classifiche e calendario
         const dati = {
           "seconda":[{"nome":"Gianni Casu","punti":30,"giocate":0,"vinte":0,"perse":0}],
           "terza":[{"nome":"Gianni Casu","punti":35,"giocate":0,"vinte":0,"perse":0}],
@@ -61,6 +64,7 @@
           ]
         };
 
+        // Funzione per creare le tabelle di categoria
         function creaTabellaCategoria(categoria, datiCategoria){
             const container = document.createElement("div");
             const h2 = document.createElement("h2");
@@ -80,6 +84,7 @@
                     tr.appendChild(th);
                 });
                 table.appendChild(tr);
+
                 datiCategoria.forEach(r => {
                     const tr = document.createElement("tr");
                     ["nome","punti","giocate","vinte","perse"].forEach(col => {
@@ -89,19 +94,27 @@
                     });
                     table.appendChild(tr);
                 });
+
                 container.appendChild(table);
             }
-            container.appendChild(document.createElement("a")).textContent="Torna in alto";
+
+            const topLink = document.createElement("a");
+            topLink.href="#top";
+            topLink.className="top-link";
+            topLink.textContent="Torna in alto";
+            container.appendChild(topLink);
+
             document.getElementById("content").appendChild(container);
         }
 
+        // Crea tutte le categorie tranne calendario
         Object.keys(dati).forEach(cat => {
             if(cat !== "calendario"){
                 creaTabellaCategoria(cat.charAt(0).toUpperCase() + cat.slice(1), dati[cat]);
             }
         });
 
-        // Funzione calendario
+        // Funzione per creare il calendario
         function creaCalendario(cal){
             const container = document.getElementById("calendar");
             const table = document.createElement("table");
@@ -112,6 +125,7 @@
                 tr.appendChild(th);
             });
             table.appendChild(tr);
+
             cal.forEach(r => {
                 const tr = document.createElement("tr");
                 ["data","casa","ospite","campo","categoria","punteggio"].forEach(col => {
@@ -121,12 +135,11 @@
                 });
                 table.appendChild(tr);
             });
+
             container.appendChild(table);
         }
 
         creaCalendario(dati.calendario);
-
     </script>
 </body>
 </html>
-
