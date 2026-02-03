@@ -13,7 +13,13 @@
         .top-link { font-size: 0.9em; margin-bottom: 20px; display: block; }
         #admin-section { border: 2px solid #444; padding: 15px; margin-top: 30px; background-color: #eee; }
         #admin-content { margin-top: 15px; padding: 10px; border: 1px solid #aaa; background-color: #fff; }
-        input { padding: 5px; margin-right: 5px; width: 80px; }
+        input {
+            padding: 5px;
+            width: 100%;       /* 🔹 occupa tutta la cella */
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        td { min-width: 80px; }
         button { padding: 5px 10px; cursor: pointer; }
     </style>
 </head>
