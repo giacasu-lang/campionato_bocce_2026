@@ -28,7 +28,6 @@
     <a href="#top" class="top-link">Torna in alto</a>
     <p>Powered by Gianni Casu</p>
 
-    <!-- Area amministrazione -->
     <div id="admin-section" style="display:block;">
       <h3>Area Amministratore</h3>
       <label>Password: <input type="password" id="admin-pass"></label>
@@ -63,6 +62,7 @@
             const pass = document.getElementById("admin-pass").value;
             if(pass === correctPassword){
                 document.getElementById("admin-content").style.display = "block";
+                mostraCalendarioAdmin();
                 alert("Accesso consentito");
             } else {
                 alert("Password errata");
@@ -107,6 +107,7 @@
                     creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
                 }
             });
+            document.getElementById("calendar").innerHTML = "";
             creaCalendario(dati.calendario);
         }
 
@@ -197,7 +198,8 @@
                     ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
                         const td = document.createElement("td");
                         const input = document.createElement("input");
-                        input.value = r[col];
+                        input.type = "text";         // 🔹 cliccabile
+                        input.value = r[col] || "";  // 🔹 garantisce valore
                         input.dataset.idx = idx;
                         input.dataset.col = col;
                         td.appendChild(input);
@@ -229,7 +231,8 @@
                 ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
                     const td = document.createElement("td");
                     const input = document.createElement("input");
-                    input.value = r[col];
+                    input.type = "text";
+                    input.value = r[col] || "";
                     input.dataset.idx = idx;
                     input.dataset.col = col;
                     td.appendChild(input);
@@ -242,7 +245,6 @@
         }
 
         function salvaModifiche(){
-            // aggiorna classifiche
             const inputsCat = document.querySelectorAll("#admin-table-container input");
             inputsCat.forEach(input => {
                 const idx = input.dataset.idx;
@@ -250,7 +252,6 @@
                 dati[categoriaSelezionata][idx][col] = input.value;
             });
 
-            // aggiorna calendario
             const inputsCal = document.querySelectorAll("#admin-cal-container input");
             inputsCal.forEach(input => {
                 const idx = input.dataset.idx;
@@ -269,7 +270,6 @@
             .then(r => alert("Modifiche salvate sul foglio Google!"))
             .catch(err => alert("Errore nel salvataggio: " + err));
 
-            // aggiorna visualizzazione
             document.getElementById("content").innerHTML = "";
             Object.keys(dati).forEach(cat => {
                 if(cat !== "calendario"){
