@@ -1,169 +1,131 @@
  <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Campionato Bocce 2026</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f6f8;
-      color: #222;
-    }
-
-    header {
-      background: #0b5ed7;
-      color: white;
-      padding: 16px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-    }
-
-    section {
-      background: white;
-      margin: 12px;
-      padding: 12px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #0b5ed7;
-      border-bottom: 2px solid #0b5ed7;
-      padding-bottom: 4px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
-    }
-
-    th {
-      background: #e9ecef;
-      font-weight: bold;
-    }
-
-    th, td {
-      padding: 6px;
-      text-align: center;
-      border: 1px solid #ddd;
-      font-size: 14px;
-    }
-
-    .nodata {
-      text-align: center;
-      color: #777;
-      padding: 10px;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 12px;
-      color: #666;
-      margin: 20px 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campionato Bocce 2026</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { margin-top: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f0f0f0; }
+        .top-link { font-size: 0.9em; margin-bottom: 20px; display: block; }
+        #admin-section { border: 1px solid #ccc; padding: 10px; margin-top: 40px; }
+    </style>
 </head>
-
 <body>
+    <h1>Campionato Bocce 2026</h1>
 
-<header>
-  Campionato Bocce 2026
-</header>
+    <div id="content"></div>
 
-<div id="contenuto">Caricamento dati...</div>
+    <h2>Calendario</h2>
+    <div id="calendar"></div>
 
-<footer>
-  Powered by Gianni Casu
-</footer>
+    <a href="#top" class="top-link">Torna in alto</a>
+    <p>Powered by Gianni Casu</p>
 
-<script>
-// Link JSON aggiornato, già caricato su GitHub
-const URL_DATI = "https://giacasu-lang.github.io/campionato-%20bocce-2026/dati.json";
+    <!-- Inizio area amministrazione -->
+    <div id="admin-section" style="display:none;">
+      <h3>Area Amministratore</h3>
+      <label>Password: <input type="password" id="admin-pass"></label>
+      <button onclick="checkPassword()">Accedi</button>
+      <div id="admin-content" style="display:none;">
+        <p>Qui puoi aggiornare i dati (solo tu vedrai questa sezione)</p>
+        <!-- Qui potremo aggiungere i controlli per modificare JSON -->
+      </div>
+    </div>
 
-// Funzione per formattare le date in gg/mm/yyyy
-function formatDate(d) {
-  if(!d || d.trim()==="") return "";
-  const dt = new Date(d);
-  return dt.getDate().toString().padStart(2,'0') + "/" +
-         (dt.getMonth()+1).toString().padStart(2,'0') + "/" +
-         dt.getFullYear();
-}
+    <script>
+        // Funzione base per mostrare/nascondere area amministrazione
+        const correctPassword = "honor70lite; // Cambia qui la tua password
+        function checkPassword() {
+            const pass = document.getElementById("admin-pass").value;
+            if(pass === correctPassword){
+                document.getElementById("admin-content").style.display = "block";
+                alert("Accesso consentito");
+            } else {
+                alert("Password errata");
+            }
+        }
 
-// Carica i dati
-fetch(URL_DATI)
-  .then(r => r.json())
-  .then(dati => {
-    let html = "";
+        // Funzioni per mostrare classifiche e calendario
+        const dati = {
+          "seconda":[{"nome":"Gianni Casu","punti":30,"giocate":0,"vinte":0,"perse":0}],
+          "terza":[{"nome":"Gianni Casu","punti":35,"giocate":0,"vinte":0,"perse":0}],
+          "juniores":[{"nome":"Gianni Casu","punti":35,"giocate":0,"vinte":0,"perse":0}],
+          "femminile":[],
+          "calendario":[
+            {"data":"2026-01-29T23:00:00.000Z","casa":"BORORE","ospite":"Nuoro B","campo":1,"categoria":"Seconda Categoria","punteggio":"2026-10-11T22:00:00.000Z"},
+            {"data":"2026-01-30T23:00:00.000Z","casa":"borore","ospite":"oristano","campo":2,"categoria":"Terza Categoria","punteggio":"2026-12-14T23:00:00.000Z"}
+          ]
+        };
 
-    function tabella(titolo, righe) {
-      html += `<section><h2>${titolo}</h2>`;
-      if (!righe || righe.length === 0) {
-        html += `<div class="nodata">Nessun dato disponibile</div></section>`;
-        return;
-      }
+        function creaTabellaCategoria(categoria, datiCategoria){
+            const container = document.createElement("div");
+            const h2 = document.createElement("h2");
+            h2.textContent = categoria;
+            container.appendChild(h2);
 
-      // Ordina per punti discendente
-      righe.sort((a,b) => b.punti - a.punti);
+            if(datiCategoria.length === 0){
+                const p = document.createElement("p");
+                p.textContent = "Nessun dato disponibile";
+                container.appendChild(p);
+            } else {
+                const table = document.createElement("table");
+                const tr = document.createElement("tr");
+                ["nome","punti","giocate","vinte","perse"].forEach(col => {
+                    const th = document.createElement("th");
+                    th.textContent = col;
+                    tr.appendChild(th);
+                });
+                table.appendChild(tr);
+                datiCategoria.forEach(r => {
+                    const tr = document.createElement("tr");
+                    ["nome","punti","giocate","vinte","perse"].forEach(col => {
+                        const td = document.createElement("td");
+                        td.textContent = r[col];
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
+                container.appendChild(table);
+            }
+            container.appendChild(document.createElement("a")).textContent="Torna in alto";
+            document.getElementById("content").appendChild(container);
+        }
 
-      html += `<table>
-          <tr>
-            <th>Nome</th>
-            <th>Punti</th>
-            <th>Giocate</th>
-            <th>Vinte</th>
-            <th>Perse</th>
-          </tr>`;
-      righe.forEach(r => {
-        html += `<tr>
-          <td>${r.nome}</td>
-          <td>${r.punti}</td>
-          <td>${r.giocate}</td>
-          <td>${r.vinte}</td>
-          <td>${r.perse}</td>
-        </tr>`;
-      });
-      html += `</table></section>`;
-    }
+        Object.keys(dati).forEach(cat => {
+            if(cat !== "calendario"){
+                creaTabellaCategoria(cat.charAt(0).toUpperCase() + cat.slice(1), dati[cat]);
+            }
+        });
 
-    tabella("Seconda Categoria", dati.seconda);
-    tabella("Terza Categoria", dati.terza);
-    tabella("Juniores", dati.juniores);
-    tabella("Femminile", dati.femminile);
+        // Funzione calendario
+        function creaCalendario(cal){
+            const container = document.getElementById("calendar");
+            const table = document.createElement("table");
+            const tr = document.createElement("tr");
+            ["data","casa","ospite","campo","categoria","punteggio"].forEach(col => {
+                const th = document.createElement("th");
+                th.textContent = col;
+                tr.appendChild(th);
+            });
+            table.appendChild(tr);
+            cal.forEach(r => {
+                const tr = document.createElement("tr");
+                ["data","casa","ospite","campo","categoria","punteggio"].forEach(col => {
+                    const td = document.createElement("td");
+                    td.textContent = r[col];
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+            container.appendChild(table);
+        }
 
-    html += `<section><h2>Calendario</h2>
-      <table>
-        <tr>
-          <th>Data</th>
-          <th>Casa</th>
-          <th>Ospite</th>
-          <th>Campo</th>
-          <th>Categoria</th>
-          <th>Punteggio</th>
-        </tr>`;
-    dati.calendario.forEach(c => {
-      html += `<tr>
-        <td>${formatDate(c.data)}</td>
-        <td>${c.casa}</td>
-        <td>${c.ospite}</td>
-        <td>${c.campo}</td>
-        <td>${c.categoria}</td>
-        <td>${c.punteggio}</td>
-      </tr>`;
-    });
-    html += `</table></section>`;
+        creaCalendario(dati.calendario);
 
-    document.getElementById("contenuto").innerHTML = html;
-  })
-  .catch(() => {
-    document.getElementById("contenuto").innerHTML = "Errore caricamento dati";
-  });
-</script>
-
+    </script>
 </body>
 </html>
