@@ -13,7 +13,7 @@
         .top-link { font-size: 0.9em; margin-bottom: 20px; display: block; }
         #admin-section { border: 2px solid #444; padding: 15px; margin-top: 30px; background-color: #eee; }
         #admin-content { margin-top: 15px; padding: 10px; border: 1px solid #aaa; background-color: #fff; }
-        input { padding: 5px; margin-right: 5px; }
+        input { padding: 5px; margin-right: 5px; width: 80px; }
         button { padding: 5px 10px; cursor: pointer; }
     </style>
 </head>
@@ -28,13 +28,27 @@
     <a href="#top" class="top-link">Torna in alto</a>
     <p>Powered by Gianni Casu</p>
 
-    <!-- Inizio area amministrazione (visibile subito per test) -->
+    <!-- Inizio area amministrazione -->
     <div id="admin-section" style="display:block;">
       <h3>Area Amministratore</h3>
       <label>Password: <input type="password" id="admin-pass"></label>
       <button onclick="checkPassword()">Accedi</button>
+     
       <div id="admin-content" style="display:none;">
         <p>Qui puoi aggiornare i dati (solo tu vedrai questa sezione)</p>
+       
+        <label for="select-cat">Seleziona categoria:</label>
+        <select id="select-cat" onchange="mostraTabellaAdmin()">
+            <option value="">--Scegli categoria--</option>
+            <option value="seconda">Seconda Categoria</option>
+            <option value="terza">Terza Categoria</option>
+            <option value="juniores">Juniores</option>
+            <option value="femminile">Femminile</option>
+        </select>
+
+        <div id="admin-table-container" style="margin-top:15px;"></div>
+       
+        <button onclick="salvaModifiche()" style="margin-top:10px;">Salva modifiche</button>
       </div>
     </div>
     <!-- Fine area amministrazione -->
@@ -140,6 +154,58 @@
         }
 
         creaCalendario(dati.calendario);
+
+        // --- FUNZIONI ADMIN ---
+        let categoriaSelezionata = "";
+
+        function mostraTabellaAdmin(){
+            categoriaSelezionata = document.getElementById("select-cat").value;
+            const container = document.getElementById("admin-table-container");
+            container.innerHTML = "";
+
+            if(categoriaSelezionata && dati[categoriaSelezionata]){
+                const table = document.createElement("table");
+                const tr = document.createElement("tr");
+                ["nome","punti","giocate","vinte","perse"].forEach(col => {
+                    const th = document.createElement("th");
+                    th.textContent = col;
+                    tr.appendChild(th);
+                });
+                table.appendChild(tr);
+
+                dati[categoriaSelezionata].forEach((r, idx) => {
+                    const tr = document.createElement("tr");
+                    ["nome","punti","giocate","vinte","perse"].forEach(col => {
+                        const td = document.createElement("td");
+                        const input = document.createElement("input");
+                        input.value = r[col];
+                        input.dataset.idx = idx;
+                        input.dataset.col = col;
+                        td.appendChild(input);
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
+
+                container.appendChild(table);
+            }
+        }
+
+        function salvaModifiche(){
+            const inputs = document.querySelectorAll("#admin-table-container input");
+            inputs.forEach(input => {
+                const idx = input.dataset.idx;
+                const col = input.dataset.col;
+                dati[categoriaSelezionata][idx][col] = input.value;
+            });
+            alert("Modifiche salvate!");
+            document.getElementById("content").innerHTML = "";
+            Object.keys(dati).forEach(cat => {
+                if(cat !== "calendario"){
+                    creaTabellaCategoria(cat.charAt(0).toUpperCase() + cat.slice(1), dati[cat]);
+                }
+            });
+        }
     </script>
 </body>
 </html>
