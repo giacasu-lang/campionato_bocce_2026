@@ -1,250 +1,139 @@
  <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Campionato Bocce 2026</title>
-<style>
-body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; color: #333; }
-h1,h2,h3 { margin-top:20px; }
-table { width:100%; border-collapse: collapse; margin-bottom:20px; }
-th, td { border:1px solid #ccc; padding:8px; text-align:left; }
-th { background-color:#e0e0e0; }
-.top-link { font-size:0.9em; margin-bottom:20px; display:block; }
-#admin-section { border:2px solid #444; padding:15px; margin-top:30px; background-color:#eee; }
-#admin-content { margin-top:15px; padding:10px; border:1px solid #aaa; background-color:#fff; pointer-events:auto !important; position:relative; z-index:9999; }
-input, button { padding:5px; width:100%; box-sizing:border-box; font-size:14px; position:relative; z-index:1; cursor:pointer; }
-td { min-width:80px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Campionato Bocce 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #0a4d8c;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #e6e6e6;
+    }
+    .admin {
+      margin-top: 30px;
+      padding: 15px;
+      background: #ffffff;
+      border: 2px solid #0a4d8c;
+    }
+    input, select, button {
+      padding: 6px;
+      margin: 4px;
+    }
+    button {
+      background: #0a4d8c;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #083b6d;
+    }
+  </style>
 </head>
+
 <body>
-<h1>Campionato Bocce 2026</h1>
 
-<div id="content"></div>
+<header>
+  <h1>Campionato Bocce 2026</h1>
+</header>
 
-<h2>Calendario</h2>
-<div id="calendar"></div>
+<main>
 
-<a href="#top" class="top-link">Torna in alto</a>
-<p>Powered by Gianni Casu</p>
+  <h2>Classifica</h2>
+  <table id="classifica">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Punti</th>
+        <th>Giocate</th>
+        <th>Vinte</th>
+        <th>Perse</th>
+        <th>Categoria</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<div id="admin-section" style="display:block;">
-  <h3>Area Amministratore</h3>
-  <label>Password: <input type="password" id="admin-pass"></label>
-  <button onclick="checkPassword()">Accedi</button>
- 
-  <div id="admin-content" style="display:none;">
-    <p>Modifica classifiche e calendario qui sotto</p>
-   
-    <label for="select-cat">Categoria (classifiche):</label>
-    <select id="select-cat" onchange="mostraTabellaAdmin()">
-        <option value="">--Scegli categoria--</option>
-        <option value="seconda">Seconda Categoria</option>
-        <option value="terza">Terza Categoria</option>
-        <option value="juniores">Juniores</option>
-        <option value="femminile">Femminile</option>
+  <div class="admin">
+    <h2>Area Admin</h2>
+
+    <label>Nome:</label>
+    <input id="nome">
+
+    <label>Punti:</label>
+    <input id="punti" type="number">
+
+    <label>Giocate:</label>
+    <input id="giocate" type="number">
+
+    <label>Vinte:</label>
+    <input id="vinte" type="number">
+
+    <label>Perse:</label>
+    <input id="perse" type="number">
+
+    <label>Categoria:</label>
+    <select id="categoria">
+      <option>A</option>
+      <option>B</option>
+      <option>C</option>
     </select>
 
-    <div id="admin-table-container" style="margin-top:15px;"></div>
-
-    <h3 style="margin-top:30px;">Modifica Calendario</h3>
-    <div id="admin-cal-container"></div>
-
-    <button onclick="salvaModifiche()" style="margin-top:10px;">Salva modifiche</button>
+    <br><br>
+    <button onclick="salva()">Salva modifiche</button>
+    <p id="msg"></p>
   </div>
-</div>
+
+</main>
 
 <script>
-const correctPassword = "honor70lite";
-const webAppUrl = "https://script.google.com/macros/s/AKfycbwgRHI7Fepd8wVpFpOWbtAvrPTZCNdInSsk9-42zFKrUBF0xF1IGJiYcO8mURAgjDQx/exec";
+  // 🔴 LINK DELLA TUA WEB APP
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyylWtnPGCZFrxK_MAMvbCmf2QU4aKtk0k7pkUbQ99sP6gbEBuTdNDPqwHDkBncXpPo/exec";
 
-function checkPassword(){
-    const pass = document.getElementById("admin-pass").value;
-    if(pass === correctPassword){
-        const adminDiv = document.getElementById("admin-content");
-        adminDiv.style.display="block";
-        adminDiv.style.pointerEvents="auto";
-        adminDiv.style.zIndex="9999";
-        mostraCalendarioAdmin();
-        alert("Accesso consentito");
-    } else alert("Password errata");
-}
+  async function salva() {
+    const dati = {
+      nome: document.getElementById("nome").value,
+      punti: document.getElementById("punti").value,
+      giocate: document.getElementById("giocate").value,
+      vinte: document.getElementById("vinte").value,
+      perse: document.getElementById("perse").value,
+      categoria: document.getElementById("categoria").value
+    };
 
-let dati={};
-
-function CSVtoJSON(csv){
-    const lines=csv.split("\n").filter(l=>l.trim()!=="");
-    const result={seconda:[],terza:[],juniores:[],femminile:[],calendario:[]};
-    const headers=lines[0].split(",");
-    for(let i=1;i<lines.length;i++){
-        const obj={};
-        const currentline=lines[i].split(",");
-        headers.forEach((h,idx)=>{ obj[h.trim()]=currentline[idx]?currentline[idx].trim():""; });
-        if(obj["Categoria"] && !obj["Data"]){
-            const cat=obj["Categoria"].toLowerCase();
-            if(cat==="seconda categoria") result.seconda.push(obj);
-            else if(cat==="terza categoria") result.terza.push(obj);
-            else if(cat==="juniores") result.juniores.push(obj);
-            else if(cat==="femminile") result.femminile.push(obj);
-        } else if(obj["Data"]) result.calendario.push(obj);
-    }
-    return result;
-}
-
-async function caricaDati(){
-    const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vTuuXAfXdQsuPzynW5KyyuLwwim5D3c8whVoEtmi7M6L8-0-Wj0Z-LGFEqGjTG4sBHUO7tlp9T7yCNk/pub?gid=0&single=true&output=csv";
-    const res=await fetch(url);
-    const csvText=await res.text();
-    dati=CSVtoJSON(csvText);
-
-    document.getElementById("content").innerHTML="";
-    Object.keys(dati).forEach(cat=>{
-        if(cat!=="calendario") creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
-    });
-    document.getElementById("calendar").innerHTML="";
-    creaCalendario(dati.calendario);
-}
-
-function creaTabellaCategoria(categoria,datiCategoria){
-    const container=document.createElement("div");
-    const h2=document.createElement("h2");
-    h2.textContent=categoria;
-    container.appendChild(h2);
-
-    if(datiCategoria.length===0){
-        const p=document.createElement("p");
-        p.textContent="Nessun dato disponibile";
-        container.appendChild(p);
-    } else {
-        const table=document.createElement("table");
-        const tr=document.createElement("tr");
-        ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col=>{
-            const th=document.createElement("th"); th.textContent=col; tr.appendChild(th);
-        });
-        table.appendChild(tr);
-
-        datiCategoria.forEach(r=>{
-            const tr=document.createElement("tr");
-            ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col=>{
-                const td=document.createElement("td"); td.textContent=r[col]; tr.appendChild(td);
-            });
-            table.appendChild(tr);
-        });
-        container.appendChild(table);
-    }
-    const topLink=document.createElement("a");
-    topLink.href="#top"; topLink.className="top-link"; topLink.textContent="Torna in alto";
-    container.appendChild(topLink);
-
-    document.getElementById("content").appendChild(container);
-}
-
-function creaCalendario(cal){
-    const container=document.getElementById("calendar");
-    const table=document.createElement("table");
-    const tr=document.createElement("tr");
-    ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col=>{
-        const th=document.createElement("th"); th.textContent=col; tr.appendChild(th);
-    });
-    table.appendChild(tr);
-
-    cal.forEach(r=>{
-        const tr=document.createElement("tr");
-        ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col=>{
-            const td=document.createElement("td"); td.textContent=r[col]; tr.appendChild(td);
-        });
-        table.appendChild(tr);
-    });
-    container.appendChild(table);
-}
-
-let categoriaSelezionata="";
-
-function mostraTabellaAdmin(){
-    categoriaSelezionata=document.getElementById("select-cat").value;
-    const container=document.getElementById("admin-table-container");
-    container.innerHTML="";
-    if(categoriaSelezionata && dati[categoriaSelezionata]){
-        const table=document.createElement("table");
-        const tr=document.createElement("tr");
-        ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col=>{
-            const th=document.createElement("th"); th.textContent=col; tr.appendChild(th);
-        });
-        table.appendChild(tr);
-
-        dati[categoriaSelezionata].forEach((r,idx)=>{
-            const tr=document.createElement("tr");
-            ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col=>{
-                const td=document.createElement("td");
-                const input=document.createElement("input");
-                input.type="text"; input.value=r[col]||"";
-                input.dataset.idx=idx; input.dataset.col=col;
-                td.appendChild(input); tr.appendChild(td);
-            });
-            table.appendChild(tr);
-        });
-        container.appendChild(table);
-    }
-}
-
-function mostraCalendarioAdmin(){
-    const container=document.getElementById("admin-cal-container");
-    container.innerHTML="";
-    if(!dati.calendario) return;
-    const table=document.createElement("table");
-    const tr=document.createElement("tr");
-    ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col=>{
-        const th=document.createElement("th"); th.textContent=col; tr.appendChild(th);
-    });
-    table.appendChild(tr);
-
-    dati.calendario.forEach((r,idx)=>{
-        const tr=document.createElement("tr");
-        ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col=>{
-            const td=document.createElement("td");
-            const input=document.createElement("input");
-            input.type="text"; input.value=r[col]||"";
-            input.dataset.idx=idx; input.dataset.col=col;
-            td.appendChild(input); tr.appendChild(td);
-        });
-        table.appendChild(tr);
-    });
-    container.appendChild(table);
-}
-
-function salvaModifiche(){
-    const inputsCat=document.querySelectorAll("#admin-table-container input");
-    inputsCat.forEach(input=>{
-        const idx=input.dataset.idx;
-        const col=input.dataset.col;
-        dati[categoriaSelezionata][idx][col]=input.value;
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(dati)
     });
 
-    const inputsCal=document.querySelectorAll("#admin-cal-container input");
-    inputsCal.forEach(input=>{
-        const idx=input.dataset.idx;
-        const col=input.dataset.col;
-        dati.calendario[idx][col]=input.value;
-    });
-
-    fetch(webAppUrl,{
-        method:"POST",
-        body:JSON.stringify({
-            classifiche:[...dati.seconda,...dati.terza,...dati.juniores,...dati.femminile],
-            calendario:dati.calendario
-        })
-    }).then(res=>res.json()).then(r=>alert("Modifiche salvate sul foglio Google!"))
-      .catch(err=>alert("Errore nel salvataggio: "+err));
-
-    document.getElementById("content").innerHTML="";
-    Object.keys(dati).forEach(cat=>{
-        if(cat!=="calendario") creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
-    });
-    document.getElementById("calendar").innerHTML="";
-    creaCalendario(dati.calendario);
-}
-
-caricaDati();
+    const txt = await res.text();
+    document.getElementById("msg").innerText = txt;
+  }
 </script>
+
 </body>
 </html>
