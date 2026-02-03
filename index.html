@@ -28,16 +28,16 @@
     <a href="#top" class="top-link">Torna in alto</a>
     <p>Powered by Gianni Casu</p>
 
-    <!-- Inizio area amministrazione -->
+    <!-- Area amministrazione -->
     <div id="admin-section" style="display:block;">
       <h3>Area Amministratore</h3>
       <label>Password: <input type="password" id="admin-pass"></label>
       <button onclick="checkPassword()">Accedi</button>
      
       <div id="admin-content" style="display:none;">
-        <p>Qui puoi aggiornare i dati (solo tu vedrai questa sezione)</p>
+        <p>Modifica classifiche e calendario qui sotto</p>
        
-        <label for="select-cat">Seleziona categoria:</label>
+        <label for="select-cat">Categoria (classifiche):</label>
         <select id="select-cat" onchange="mostraTabellaAdmin()">
             <option value="">--Scegli categoria--</option>
             <option value="seconda">Seconda Categoria</option>
@@ -47,15 +47,18 @@
         </select>
 
         <div id="admin-table-container" style="margin-top:15px;"></div>
-       
+
+        <h3 style="margin-top:30px;">Modifica Calendario</h3>
+        <div id="admin-cal-container"></div>
+
         <button onclick="salvaModifiche()" style="margin-top:10px;">Salva modifiche</button>
       </div>
     </div>
-    <!-- Fine area amministrazione -->
 
     <script>
-        // Password admin
         const correctPassword = "honor70lite";
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbwgRHI7Fepd8wVpFpOWbtAvrPTZCNdInSsk9-42zFKrUBF0xF1IGJiYcO8mURAgjDQx/exec";
+
         function checkPassword() {
             const pass = document.getElementById("admin-pass").value;
             if(pass === correctPassword){
@@ -66,9 +69,8 @@
             }
         }
 
-        let dati = {}; // variabile vuota iniziale
+        let dati = {};
 
-        // Funzione per convertire CSV in JSON
         function CSVtoJSON(csv){
             const lines = csv.split("\n").filter(l => l.trim() !== "");
             const result = { seconda: [], terza: [], juniores: [], femminile: [], calendario: [] };
@@ -80,37 +82,34 @@
                 headers.forEach((h, idx) => {
                     obj[h.trim()] = currentline[idx] ? currentline[idx].trim() : "";
                 });
-                if(obj["Categoria"]){
+                if(obj["Categoria"] && !obj["Data"]){
                     const cat = obj["Categoria"].toLowerCase();
                     if(cat === "seconda categoria") result.seconda.push(obj);
                     else if(cat === "terza categoria") result.terza.push(obj);
                     else if(cat === "juniores") result.juniores.push(obj);
                     else if(cat === "femminile") result.femminile.push(obj);
-                } else if(obj["Data"]){ // calendario
+                } else if(obj["Data"]){
                     result.calendario.push(obj);
                 }
             }
             return result;
         }
 
-        // Carica dati dal Google Sheet
         async function caricaDati() {
             const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTuuXAfXdQsuPzynW5KyyuLwwim5D3c8whVoEtmi7M6L8-0-Wj0Z-LGFEqGjTG4sBHUO7tlp9T7yCNk/pub?gid=0&single=true&output=csv";
             const res = await fetch(url);
             const csvText = await res.text();
             dati = CSVtoJSON(csvText);
 
-            // Ricrea le tabelle
             document.getElementById("content").innerHTML = "";
             Object.keys(dati).forEach(cat => {
                 if(cat !== "calendario") {
-                    creaTabellaCategoria(cat.charAt(0).toUpperCase() + cat.slice(1), dati[cat]);
+                    creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
                 }
             });
             creaCalendario(dati.calendario);
         }
 
-        // Funzioni per creare le tabelle
         function creaTabellaCategoria(categoria, datiCategoria){
             const container = document.createElement("div");
             const h2 = document.createElement("h2");
@@ -143,7 +142,6 @@
 
                 container.appendChild(table);
             }
-
             const topLink = document.createElement("a");
             topLink.href="#top";
             topLink.className="top-link";
@@ -177,7 +175,6 @@
             container.appendChild(table);
         }
 
-        // --- FUNZIONI ADMIN ---
         let categoriaSelezionata = "";
 
         function mostraTabellaAdmin(){
@@ -213,23 +210,76 @@
             }
         }
 
+        function mostraCalendarioAdmin(){
+            const container = document.getElementById("admin-cal-container");
+            container.innerHTML = "";
+            if(!dati.calendario) return;
+
+            const table = document.createElement("table");
+            const tr = document.createElement("tr");
+            ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
+                const th = document.createElement("th");
+                th.textContent = col;
+                tr.appendChild(th);
+            });
+            table.appendChild(tr);
+
+            dati.calendario.forEach((r, idx) => {
+                const tr = document.createElement("tr");
+                ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
+                    const td = document.createElement("td");
+                    const input = document.createElement("input");
+                    input.value = r[col];
+                    input.dataset.idx = idx;
+                    input.dataset.col = col;
+                    td.appendChild(input);
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+
+            container.appendChild(table);
+        }
+
         function salvaModifiche(){
-            const inputs = document.querySelectorAll("#admin-table-container input");
-            inputs.forEach(input => {
+            // aggiorna classifiche
+            const inputsCat = document.querySelectorAll("#admin-table-container input");
+            inputsCat.forEach(input => {
                 const idx = input.dataset.idx;
                 const col = input.dataset.col;
                 dati[categoriaSelezionata][idx][col] = input.value;
             });
-            alert("Modifiche salvate (temporaneamente in memoria, non ancora nel foglio Google).");
+
+            // aggiorna calendario
+            const inputsCal = document.querySelectorAll("#admin-cal-container input");
+            inputsCal.forEach(input => {
+                const idx = input.dataset.idx;
+                const col = input.dataset.col;
+                dati.calendario[idx][col] = input.value;
+            });
+
+            fetch(webAppUrl, {
+                method: "POST",
+                body: JSON.stringify({
+                    classifiche: [...dati.seconda, ...dati.terza, ...dati.juniores, ...dati.femminile],
+                    calendario: dati.calendario
+                })
+            })
+            .then(res => res.json())
+            .then(r => alert("Modifiche salvate sul foglio Google!"))
+            .catch(err => alert("Errore nel salvataggio: " + err));
+
+            // aggiorna visualizzazione
             document.getElementById("content").innerHTML = "";
             Object.keys(dati).forEach(cat => {
                 if(cat !== "calendario"){
-                    creaTabellaCategoria(cat.charAt(0).toUpperCase() + cat.slice(1), dati[cat]);
+                    creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
                 }
             });
+            document.getElementById("calendar").innerHTML = "";
+            creaCalendario(dati.calendario);
         }
 
-        // Carica i dati all’avvio
         caricaDati();
     </script>
 </body>
