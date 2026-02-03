@@ -1,294 +1,250 @@
  <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campionato Bocce 2026</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; color: #333; }
-        h1, h2, h3 { margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #e0e0e0; }
-        .top-link { font-size: 0.9em; margin-bottom: 20px; display: block; }
-        #admin-section { border: 2px solid #444; padding: 15px; margin-top: 30px; background-color: #eee; }
-        #admin-content { margin-top: 15px; padding: 10px; border: 1px solid #aaa; background-color: #fff; pointer-events: auto !important; }
-        input, button {
-            padding: 5px;
-            width: 100%;      
-            box-sizing: border-box;
-            font-size: 14px;
-            position: relative;
-            z-index: 1;
-        }
-        td { min-width: 80px; }
-        button { cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campionato Bocce 2026</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; color: #333; }
+h1,h2,h3 { margin-top:20px; }
+table { width:100%; border-collapse: collapse; margin-bottom:20px; }
+th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+th { background-color:#e0e0e0; }
+.top-link { font-size:0.9em; margin-bottom:20px; display:block; }
+#admin-section { border:2px solid #444; padding:15px; margin-top:30px; background-color:#eee; }
+#admin-content { margin-top:15px; padding:10px; border:1px solid #aaa; background-color:#fff; pointer-events:auto !important; position:relative; z-index:9999; }
+input, button { padding:5px; width:100%; box-sizing:border-box; font-size:14px; position:relative; z-index:1; cursor:pointer; }
+td { min-width:80px; }
+</style>
 </head>
 <body>
-    <h1>Campionato Bocce 2026</h1>
+<h1>Campionato Bocce 2026</h1>
 
-    <div id="content"></div>
+<div id="content"></div>
 
-    <h2>Calendario</h2>
-    <div id="calendar"></div>
+<h2>Calendario</h2>
+<div id="calendar"></div>
 
-    <a href="#top" class="top-link">Torna in alto</a>
-    <p>Powered by Gianni Casu</p>
+<a href="#top" class="top-link">Torna in alto</a>
+<p>Powered by Gianni Casu</p>
 
-    <div id="admin-section" style="display:block;">
-      <h3>Area Amministratore</h3>
-      <label>Password: <input type="password" id="admin-pass"></label>
-      <button onclick="checkPassword()">Accedi</button>
-     
-      <div id="admin-content" style="display:none;">
-        <p>Modifica classifiche e calendario qui sotto</p>
-       
-        <label for="select-cat">Categoria (classifiche):</label>
-        <select id="select-cat" onchange="mostraTabellaAdmin()">
-            <option value="">--Scegli categoria--</option>
-            <option value="seconda">Seconda Categoria</option>
-            <option value="terza">Terza Categoria</option>
-            <option value="juniores">Juniores</option>
-            <option value="femminile">Femminile</option>
-        </select>
+<div id="admin-section" style="display:block;">
+  <h3>Area Amministratore</h3>
+  <label>Password: <input type="password" id="admin-pass"></label>
+  <button onclick="checkPassword()">Accedi</button>
+ 
+  <div id="admin-content" style="display:none;">
+    <p>Modifica classifiche e calendario qui sotto</p>
+   
+    <label for="select-cat">Categoria (classifiche):</label>
+    <select id="select-cat" onchange="mostraTabellaAdmin()">
+        <option value="">--Scegli categoria--</option>
+        <option value="seconda">Seconda Categoria</option>
+        <option value="terza">Terza Categoria</option>
+        <option value="juniores">Juniores</option>
+        <option value="femminile">Femminile</option>
+    </select>
 
-        <div id="admin-table-container" style="margin-top:15px;"></div>
+    <div id="admin-table-container" style="margin-top:15px;"></div>
 
-        <h3 style="margin-top:30px;">Modifica Calendario</h3>
-        <div id="admin-cal-container"></div>
+    <h3 style="margin-top:30px;">Modifica Calendario</h3>
+    <div id="admin-cal-container"></div>
 
-        <button onclick="salvaModifiche()" style="margin-top:10px;">Salva modifiche</button>
-      </div>
-    </div>
+    <button onclick="salvaModifiche()" style="margin-top:10px;">Salva modifiche</button>
+  </div>
+</div>
 
-    <script>
-        const correctPassword = "honor70lite";
-        const webAppUrl = "https://script.google.com/macros/s/AKfycbwgRHI7Fepd8wVpFpOWbtAvrPTZCNdInSsk9-42zFKrUBF0xF1IGJiYcO8mURAgjDQx/exec";
+<script>
+const correctPassword = "honor70lite";
+const webAppUrl = "https://script.google.com/macros/s/AKfycbwgRHI7Fepd8wVpFpOWbtAvrPTZCNdInSsk9-42zFKrUBF0xF1IGJiYcO8mURAgjDQx/exec";
 
-        function checkPassword() {
-            const pass = document.getElementById("admin-pass").value;
-            if(pass === correctPassword){
-                document.getElementById("admin-content").style.display = "block";
-                mostraCalendarioAdmin();
-                alert("Accesso consentito");
-            } else {
-                alert("Password errata");
-            }
-        }
+function checkPassword(){
+    const pass = document.getElementById("admin-pass").value;
+    if(pass === correctPassword){
+        const adminDiv = document.getElementById("admin-content");
+        adminDiv.style.display="block";
+        adminDiv.style.pointerEvents="auto";
+        adminDiv.style.zIndex="9999";
+        mostraCalendarioAdmin();
+        alert("Accesso consentito");
+    } else alert("Password errata");
+}
 
-        let dati = {};
+let dati={};
 
-        function CSVtoJSON(csv){
-            const lines = csv.split("\n").filter(l => l.trim() !== "");
-            const result = { seconda: [], terza: [], juniores: [], femminile: [], calendario: [] };
-            const headers = lines[0].split(",");
+function CSVtoJSON(csv){
+    const lines=csv.split("\n").filter(l=>l.trim()!=="");
+    const result={seconda:[],terza:[],juniores:[],femminile:[],calendario:[]};
+    const headers=lines[0].split(",");
+    for(let i=1;i<lines.length;i++){
+        const obj={};
+        const currentline=lines[i].split(",");
+        headers.forEach((h,idx)=>{ obj[h.trim()]=currentline[idx]?currentline[idx].trim():""; });
+        if(obj["Categoria"] && !obj["Data"]){
+            const cat=obj["Categoria"].toLowerCase();
+            if(cat==="seconda categoria") result.seconda.push(obj);
+            else if(cat==="terza categoria") result.terza.push(obj);
+            else if(cat==="juniores") result.juniores.push(obj);
+            else if(cat==="femminile") result.femminile.push(obj);
+        } else if(obj["Data"]) result.calendario.push(obj);
+    }
+    return result;
+}
 
-            for(let i=1; i<lines.length; i++){
-                const obj = {};
-                const currentline = lines[i].split(",");
-                headers.forEach((h, idx) => {
-                    obj[h.trim()] = currentline[idx] ? currentline[idx].trim() : "";
-                });
-                if(obj["Categoria"] && !obj["Data"]){
-                    const cat = obj["Categoria"].toLowerCase();
-                    if(cat === "seconda categoria") result.seconda.push(obj);
-                    else if(cat === "terza categoria") result.terza.push(obj);
-                    else if(cat === "juniores") result.juniores.push(obj);
-                    else if(cat === "femminile") result.femminile.push(obj);
-                } else if(obj["Data"]){
-                    result.calendario.push(obj);
-                }
-            }
-            return result;
-        }
+async function caricaDati(){
+    const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vTuuXAfXdQsuPzynW5KyyuLwwim5D3c8whVoEtmi7M6L8-0-Wj0Z-LGFEqGjTG4sBHUO7tlp9T7yCNk/pub?gid=0&single=true&output=csv";
+    const res=await fetch(url);
+    const csvText=await res.text();
+    dati=CSVtoJSON(csvText);
 
-        async function caricaDati() {
-            const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTuuXAfXdQsuPzynW5KyyuLwwim5D3c8whVoEtmi7M6L8-0-Wj0Z-LGFEqGjTG4sBHUO7tlp9T7yCNk/pub?gid=0&single=true&output=csv";
-            const res = await fetch(url);
-            const csvText = await res.text();
-            dati = CSVtoJSON(csvText);
+    document.getElementById("content").innerHTML="";
+    Object.keys(dati).forEach(cat=>{
+        if(cat!=="calendario") creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
+    });
+    document.getElementById("calendar").innerHTML="";
+    creaCalendario(dati.calendario);
+}
 
-            document.getElementById("content").innerHTML = "";
-            Object.keys(dati).forEach(cat => {
-                if(cat !== "calendario") {
-                    creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
-                }
-            });
-            document.getElementById("calendar").innerHTML = "";
-            creaCalendario(dati.calendario);
-        }
+function creaTabellaCategoria(categoria,datiCategoria){
+    const container=document.createElement("div");
+    const h2=document.createElement("h2");
+    h2.textContent=categoria;
+    container.appendChild(h2);
 
-        function creaTabellaCategoria(categoria, datiCategoria){
-            const container = document.createElement("div");
-            const h2 = document.createElement("h2");
-            h2.textContent = categoria;
-            container.appendChild(h2);
+    if(datiCategoria.length===0){
+        const p=document.createElement("p");
+        p.textContent="Nessun dato disponibile";
+        container.appendChild(p);
+    } else {
+        const table=document.createElement("table");
+        const tr=document.createElement("tr");
+        ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col=>{
+            const th=document.createElement("th"); th.textContent=col; tr.appendChild(th);
+        });
+        table.appendChild(tr);
 
-            if(datiCategoria.length === 0){
-                const p = document.createElement("p");
-                p.textContent = "Nessun dato disponibile";
-                container.appendChild(p);
-            } else {
-                const table = document.createElement("table");
-                const tr = document.createElement("tr");
-                ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
-                    const th = document.createElement("th");
-                    th.textContent = col;
-                    tr.appendChild(th);
-                });
-                table.appendChild(tr);
-
-                datiCategoria.forEach(r => {
-                    const tr = document.createElement("tr");
-                    ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
-                        const td = document.createElement("td");
-                        td.textContent = r[col];
-                        tr.appendChild(td);
-                    });
-                    table.appendChild(tr);
-                });
-
-                container.appendChild(table);
-            }
-            const topLink = document.createElement("a");
-            topLink.href="#top";
-            topLink.className="top-link";
-            topLink.textContent="Torna in alto";
-            container.appendChild(topLink);
-
-            document.getElementById("content").appendChild(container);
-        }
-
-        function creaCalendario(cal){
-            const container = document.getElementById("calendar");
-            const table = document.createElement("table");
-            const tr = document.createElement("tr");
-            ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
-                const th = document.createElement("th");
-                th.textContent = col;
-                tr.appendChild(th);
+        datiCategoria.forEach(r=>{
+            const tr=document.createElement("tr");
+            ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col=>{
+                const td=document.createElement("td"); td.textContent=r[col]; tr.appendChild(td);
             });
             table.appendChild(tr);
+        });
+        container.appendChild(table);
+    }
+    const topLink=document.createElement("a");
+    topLink.href="#top"; topLink.className="top-link"; topLink.textContent="Torna in alto";
+    container.appendChild(topLink);
 
-            cal.forEach(r => {
-                const tr = document.createElement("tr");
-                ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
-                    const td = document.createElement("td");
-                    td.textContent = r[col];
-                    tr.appendChild(td);
-                });
-                table.appendChild(tr);
-            });
+    document.getElementById("content").appendChild(container);
+}
 
-            container.appendChild(table);
-        }
+function creaCalendario(cal){
+    const container=document.getElementById("calendar");
+    const table=document.createElement("table");
+    const tr=document.createElement("tr");
+    ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col=>{
+        const th=document.createElement("th"); th.textContent=col; tr.appendChild(th);
+    });
+    table.appendChild(tr);
 
-        let categoriaSelezionata = "";
+    cal.forEach(r=>{
+        const tr=document.createElement("tr");
+        ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col=>{
+            const td=document.createElement("td"); td.textContent=r[col]; tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+    container.appendChild(table);
+}
 
-        function mostraTabellaAdmin(){
-            categoriaSelezionata = document.getElementById("select-cat").value;
-            const container = document.getElementById("admin-table-container");
-            container.innerHTML = "";
+let categoriaSelezionata="";
 
-            if(categoriaSelezionata && dati[categoriaSelezionata]){
-                const table = document.createElement("table");
-                const tr = document.createElement("tr");
-                ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
-                    const th = document.createElement("th");
-                    th.textContent = col;
-                    tr.appendChild(th);
-                });
-                table.appendChild(tr);
+function mostraTabellaAdmin(){
+    categoriaSelezionata=document.getElementById("select-cat").value;
+    const container=document.getElementById("admin-table-container");
+    container.innerHTML="";
+    if(categoriaSelezionata && dati[categoriaSelezionata]){
+        const table=document.createElement("table");
+        const tr=document.createElement("tr");
+        ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col=>{
+            const th=document.createElement("th"); th.textContent=col; tr.appendChild(th);
+        });
+        table.appendChild(tr);
 
-                dati[categoriaSelezionata].forEach((r, idx) => {
-                    const tr = document.createElement("tr");
-                    ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
-                        const td = document.createElement("td");
-                        const input = document.createElement("input");
-                        input.type = "text";        
-                        input.value = r[col] || ""; 
-                        input.dataset.idx = idx;
-                        input.dataset.col = col;
-                        td.appendChild(input);
-                        tr.appendChild(td);
-                    });
-                    table.appendChild(tr);
-                });
-
-                container.appendChild(table);
-            }
-        }
-
-        function mostraCalendarioAdmin(){
-            const container = document.getElementById("admin-cal-container");
-            container.innerHTML = "";
-            if(!dati.calendario) return;
-
-            const table = document.createElement("table");
-            const tr = document.createElement("tr");
-            ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
-                const th = document.createElement("th");
-                th.textContent = col;
-                tr.appendChild(th);
+        dati[categoriaSelezionata].forEach((r,idx)=>{
+            const tr=document.createElement("tr");
+            ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col=>{
+                const td=document.createElement("td");
+                const input=document.createElement("input");
+                input.type="text"; input.value=r[col]||"";
+                input.dataset.idx=idx; input.dataset.col=col;
+                td.appendChild(input); tr.appendChild(td);
             });
             table.appendChild(tr);
+        });
+        container.appendChild(table);
+    }
+}
 
-            dati.calendario.forEach((r, idx) => {
-                const tr = document.createElement("tr");
-                ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
-                    const td = document.createElement("td");
-                    const input = document.createElement("input");
-                    input.type = "text";
-                    input.value = r[col] || "";
-                    input.dataset.idx = idx;
-                    input.dataset.col = col;
-                    td.appendChild(input);
-                    tr.appendChild(td);
-                });
-                table.appendChild(tr);
-            });
+function mostraCalendarioAdmin(){
+    const container=document.getElementById("admin-cal-container");
+    container.innerHTML="";
+    if(!dati.calendario) return;
+    const table=document.createElement("table");
+    const tr=document.createElement("tr");
+    ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col=>{
+        const th=document.createElement("th"); th.textContent=col; tr.appendChild(th);
+    });
+    table.appendChild(tr);
 
-            container.appendChild(table);
-        }
+    dati.calendario.forEach((r,idx)=>{
+        const tr=document.createElement("tr");
+        ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col=>{
+            const td=document.createElement("td");
+            const input=document.createElement("input");
+            input.type="text"; input.value=r[col]||"";
+            input.dataset.idx=idx; input.dataset.col=col;
+            td.appendChild(input); tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+    container.appendChild(table);
+}
 
-        function salvaModifiche(){
-            const inputsCat = document.querySelectorAll("#admin-table-container input");
-            inputsCat.forEach(input => {
-                const idx = input.dataset.idx;
-                const col = input.dataset.col;
-                dati[categoriaSelezionata][idx][col] = input.value;
-            });
+function salvaModifiche(){
+    const inputsCat=document.querySelectorAll("#admin-table-container input");
+    inputsCat.forEach(input=>{
+        const idx=input.dataset.idx;
+        const col=input.dataset.col;
+        dati[categoriaSelezionata][idx][col]=input.value;
+    });
 
-            const inputsCal = document.querySelectorAll("#admin-cal-container input");
-            inputsCal.forEach(input => {
-                const idx = input.dataset.idx;
-                const col = input.dataset.col;
-                dati.calendario[idx][col] = input.value;
-            });
+    const inputsCal=document.querySelectorAll("#admin-cal-container input");
+    inputsCal.forEach(input=>{
+        const idx=input.dataset.idx;
+        const col=input.dataset.col;
+        dati.calendario[idx][col]=input.value;
+    });
 
-            fetch(webAppUrl, {
-                method: "POST",
-                body: JSON.stringify({
-                    classifiche: [...dati.seconda, ...dati.terza, ...dati.juniores, ...dati.femminile],
-                    calendario: dati.calendario
-                })
-            })
-            .then(res => res.json())
-            .then(r => alert("Modifiche salvate sul foglio Google!"))
-            .catch(err => alert("Errore nel salvataggio: " + err));
+    fetch(webAppUrl,{
+        method:"POST",
+        body:JSON.stringify({
+            classifiche:[...dati.seconda,...dati.terza,...dati.juniores,...dati.femminile],
+            calendario:dati.calendario
+        })
+    }).then(res=>res.json()).then(r=>alert("Modifiche salvate sul foglio Google!"))
+      .catch(err=>alert("Errore nel salvataggio: "+err));
 
-            document.getElementById("content").innerHTML = "";
-            Object.keys(dati).forEach(cat => {
-                if(cat !== "calendario"){
-                    creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
-                }
-            });
-            document.getElementById("calendar").innerHTML = "";
-            creaCalendario(dati.calendario);
-        }
+    document.getElementById("content").innerHTML="";
+    Object.keys(dati).forEach(cat=>{
+        if(cat!=="calendario") creaTabellaCategoria(cat.charAt(0).toUpperCase()+cat.slice(1), dati[cat]);
+    });
+    document.getElementById("calendar").innerHTML="";
+    creaCalendario(dati.calendario);
+}
 
-        caricaDati();
-    </script>
+caricaDati();
+</script>
 </body>
 </html>
