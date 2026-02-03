@@ -66,19 +66,51 @@
             }
         }
 
-        // Dati classifiche e calendario
-        const dati = {
-          "seconda":[{"nome":"Gianni Casu","punti":30,"giocate":0,"vinte":0,"perse":0}],
-          "terza":[{"nome":"Gianni Casu","punti":35,"giocate":0,"vinte":0,"perse":0}],
-          "juniores":[{"nome":"Gianni Casu","punti":35,"giocate":0,"vinte":0,"perse":0}],
-          "femminile":[],
-          "calendario":[
-            {"data":"2026-01-29T23:00:00.000Z","casa":"BORORE","ospite":"Nuoro B","campo":1,"categoria":"Seconda Categoria","punteggio":"2026-10-11T22:00:00.000Z"},
-            {"data":"2026-01-30T23:00:00.000Z","casa":"borore","ospite":"oristano","campo":2,"categoria":"Terza Categoria","punteggio":"2026-12-14T23:00:00.000Z"}
-          ]
-        };
+        let dati = {}; // variabile vuota iniziale
 
-        // Funzione per creare le tabelle di categoria
+        // Funzione per convertire CSV in JSON
+        function CSVtoJSON(csv){
+            const lines = csv.split("\n").filter(l => l.trim() !== "");
+            const result = { seconda: [], terza: [], juniores: [], femminile: [], calendario: [] };
+            const headers = lines[0].split(",");
+
+            for(let i=1; i<lines.length; i++){
+                const obj = {};
+                const currentline = lines[i].split(",");
+                headers.forEach((h, idx) => {
+                    obj[h.trim()] = currentline[idx] ? currentline[idx].trim() : "";
+                });
+                if(obj["Categoria"]){
+                    const cat = obj["Categoria"].toLowerCase();
+                    if(cat === "seconda categoria") result.seconda.push(obj);
+                    else if(cat === "terza categoria") result.terza.push(obj);
+                    else if(cat === "juniores") result.juniores.push(obj);
+                    else if(cat === "femminile") result.femminile.push(obj);
+                } else if(obj["Data"]){ // calendario
+                    result.calendario.push(obj);
+                }
+            }
+            return result;
+        }
+
+        // Carica dati dal Google Sheet
+        async function caricaDati() {
+            const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTuuXAfXdQsuPzynW5KyyuLwwim5D3c8whVoEtmi7M6L8-0-Wj0Z-LGFEqGjTG4sBHUO7tlp9T7yCNk/pub?gid=0&single=true&output=csv";
+            const res = await fetch(url);
+            const csvText = await res.text();
+            dati = CSVtoJSON(csvText);
+
+            // Ricrea le tabelle
+            document.getElementById("content").innerHTML = "";
+            Object.keys(dati).forEach(cat => {
+                if(cat !== "calendario") {
+                    creaTabellaCategoria(cat.charAt(0).toUpperCase() + cat.slice(1), dati[cat]);
+                }
+            });
+            creaCalendario(dati.calendario);
+        }
+
+        // Funzioni per creare le tabelle
         function creaTabellaCategoria(categoria, datiCategoria){
             const container = document.createElement("div");
             const h2 = document.createElement("h2");
@@ -92,7 +124,7 @@
             } else {
                 const table = document.createElement("table");
                 const tr = document.createElement("tr");
-                ["nome","punti","giocate","vinte","perse"].forEach(col => {
+                ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
                     const th = document.createElement("th");
                     th.textContent = col;
                     tr.appendChild(th);
@@ -101,7 +133,7 @@
 
                 datiCategoria.forEach(r => {
                     const tr = document.createElement("tr");
-                    ["nome","punti","giocate","vinte","perse"].forEach(col => {
+                    ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
                         const td = document.createElement("td");
                         td.textContent = r[col];
                         tr.appendChild(td);
@@ -121,19 +153,11 @@
             document.getElementById("content").appendChild(container);
         }
 
-        // Crea tutte le categorie tranne calendario
-        Object.keys(dati).forEach(cat => {
-            if(cat !== "calendario"){
-                creaTabellaCategoria(cat.charAt(0).toUpperCase() + cat.slice(1), dati[cat]);
-            }
-        });
-
-        // Funzione per creare il calendario
         function creaCalendario(cal){
             const container = document.getElementById("calendar");
             const table = document.createElement("table");
             const tr = document.createElement("tr");
-            ["data","casa","ospite","campo","categoria","punteggio"].forEach(col => {
+            ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
                 const th = document.createElement("th");
                 th.textContent = col;
                 tr.appendChild(th);
@@ -142,7 +166,7 @@
 
             cal.forEach(r => {
                 const tr = document.createElement("tr");
-                ["data","casa","ospite","campo","categoria","punteggio"].forEach(col => {
+                ["Data","Casa","Ospite","Campo","Categoria","Punteggio"].forEach(col => {
                     const td = document.createElement("td");
                     td.textContent = r[col];
                     tr.appendChild(td);
@@ -152,8 +176,6 @@
 
             container.appendChild(table);
         }
-
-        creaCalendario(dati.calendario);
 
         // --- FUNZIONI ADMIN ---
         let categoriaSelezionata = "";
@@ -166,7 +188,7 @@
             if(categoriaSelezionata && dati[categoriaSelezionata]){
                 const table = document.createElement("table");
                 const tr = document.createElement("tr");
-                ["nome","punti","giocate","vinte","perse"].forEach(col => {
+                ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
                     const th = document.createElement("th");
                     th.textContent = col;
                     tr.appendChild(th);
@@ -175,7 +197,7 @@
 
                 dati[categoriaSelezionata].forEach((r, idx) => {
                     const tr = document.createElement("tr");
-                    ["nome","punti","giocate","vinte","perse"].forEach(col => {
+                    ["Nome","Punti","Giocate","Vinte","Perse"].forEach(col => {
                         const td = document.createElement("td");
                         const input = document.createElement("input");
                         input.value = r[col];
@@ -198,7 +220,7 @@
                 const col = input.dataset.col;
                 dati[categoriaSelezionata][idx][col] = input.value;
             });
-            alert("Modifiche salvate!");
+            alert("Modifiche salvate (temporaneamente in memoria, non ancora nel foglio Google).");
             document.getElementById("content").innerHTML = "";
             Object.keys(dati).forEach(cat => {
                 if(cat !== "calendario"){
@@ -206,6 +228,9 @@
                 }
             });
         }
+
+        // Carica i dati all’avvio
+        caricaDati();
     </script>
 </body>
 </html>
