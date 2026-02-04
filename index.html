@@ -112,9 +112,9 @@
 </main>
 
 <script>
-  // 🔴 LINK DELLA TUA WEB APP
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyylWtnPGCZFrxK_MAMvbCmf2QU4aKtk0k7pkUbQ99sP6gbEBuTdNDPqwHDkBncXpPo/exec";
 
+  // Funzione per salvare modifiche admin
   async function salva() {
     const dati = {
       nome: document.getElementById("nome").value,
@@ -132,7 +132,35 @@
 
     const txt = await res.text();
     document.getElementById("msg").innerText = txt;
+
+    // Aggiorna classifica subito dopo salvataggio
+    caricaClassifica();
   }
+
+  // Funzione per caricare automaticamente la classifica
+  async function caricaClassifica() {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+
+    const tbody = document.querySelector("#classifica tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.nome}</td>
+        <td>${row.punti}</td>
+        <td>${row.giocate}</td>
+        <td>${row.vinte}</td>
+        <td>${row.perse}</td>
+        <td>${row.categoria}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Carica classifica all'apertura della pagina
+  window.onload = caricaClassifica;
 </script>
 
 </body>
