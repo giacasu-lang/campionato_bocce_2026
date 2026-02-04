@@ -9,10 +9,10 @@
     body { font-family: Arial; background: #f2f2f2; margin:0; padding:0; }
     header { background: #0a4d8c; color: white; padding: 15px; text-align:center; }
     main { padding: 20px; }
-    table { width: 100%; border-collapse: collapse; background: white; }
+    table { width: 100%; border-collapse: collapse; background: white; margin-bottom:30px; }
     th, td { border:1px solid #ccc; padding:8px; text-align:center; }
     th { background: #e6e6e6; }
-    .admin { margin-top:30px; padding:15px; background:white; border:2px solid #0a4d8c; }
+    .admin { margin-top:30px; padding:15px; background:white; border:2px solid #0a4d8c; margin-bottom:30px; }
     input, select, button { padding:6px; margin:4px; }
     button { background:#0a4d8c; color:white; border:none; cursor:pointer; }
     button:hover { background:#083b6d; }
@@ -26,6 +26,7 @@
 </header>
 
 <main>
+  <!-- CLASSIFICA -->
   <h2>Classifica</h2>
   <table id="classifica">
     <thead>
@@ -37,7 +38,7 @@
   </table>
 
   <div class="admin">
-    <h2>Area Admin</h2>
+    <h3>Area Admin Classifica</h3>
     <label>Nome:</label><input id="nome">
     <label>Punti:</label><input id="punti" type="number">
     <label>Giocate:</label><input id="giocate" type="number">
@@ -48,16 +49,44 @@
       <option>A</option><option>B</option><option>C</option>
     </select>
     <br><br>
-    <button onclick="salva()">Salva modifiche</button>
-    <p id="msg"></p>
+    <button onclick="salvaGiocatore()">Salva modifiche</button>
+    <p id="msgClassifica"></p>
+  </div>
+
+  <!-- CALENDARIO -->
+  <h2>Calendario</h2>
+  <table id="calendario">
+    <thead>
+      <tr>
+        <th>Data</th><th>Casa</th><th>Ospite</th><th>Campo</th><th>Categoria</th><th>Punteggio</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="admin">
+    <h3>Area Admin Calendario</h3>
+    <label>Data:</label><input id="data" type="date">
+    <label>Casa:</label><input id="casa">
+    <label>Ospite:</label><input id="ospite">
+    <label>Campo:</label><input id="campo" type="number">
+    <label>Categoria:</label>
+    <select id="catCalendario">
+      <option>A</option><option>B</option><option>C</option>
+    </select>
+    <label>Punteggio:</label><input id="punteggio">
+    <br><br>
+    <button onclick="salvaPartita()">Salva partita</button>
+    <p id="msgCalendario"></p>
   </div>
 </main>
 
 <script>
-  // Link Web App aggiornato
+  // Link Web App Apps Script
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3nDDWgDJ1Z_nFi_EMzyt0LzcIQWt2PJhGGW5Sh_bh88ga8bpJA3BD9xdI-Baa_MFI/exec";
 
-  async function salva() {
+  // --- CLASSIFICA ---
+  async function salvaGiocatore() {
     const dati = {
       nome: document.getElementById("nome").value,
       punti: document.getElementById("punti").value,
@@ -73,7 +102,7 @@
     });
 
     const txt = await res.text();
-    document.getElementById("msg").innerText = txt;
+    document.getElementById("msgClassifica").innerText = txt;
 
     caricaClassifica();
   }
@@ -86,20 +115,70 @@
     tbody.innerHTML = "";
 
     data.forEach(row => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${row.nome}</td>
-        <td>${row.punti}</td>
-        <td>${row.giocate}</td>
-        <td>${row.vinte}</td>
-        <td>${row.perse}</td>
-        <td>${row.categoria}</td>
-      `;
-      tbody.appendChild(tr);
+      if (row.nome) { // sicurezza se ci sono righe vuote
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.nome}</td>
+          <td>${row.punti}</td>
+          <td>${row.giocate}</td>
+          <td>${row.vinte}</td>
+          <td>${row.perse}</td>
+          <td>${row.categoria}</td>
+        `;
+        tbody.appendChild(tr);
+      }
     });
   }
 
-  window.onload = caricaClassifica;
+  // --- CALENDARIO ---
+  async function salvaPartita() {
+    const dati = {
+      data: document.getElementById("data").value,
+      casa: document.getElementById("casa").value,
+      ospite: document.getElementById("ospite").value,
+      campo: document.getElementById("campo").value,
+      categoria: document.getElementById("catCalendario").value,
+      punteggio: document.getElementById("punteggio").value
+    };
+
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(dati)
+    });
+
+    const txt = await res.text();
+    document.getElementById("msgCalendario").innerText = txt;
+
+    caricaCalendario();
+  }
+
+  async function caricaCalendario() {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+
+    const tbody = document.querySelector("#calendario tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
+      if (row.data) { // sicurezza se ci sono righe vuote
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.data}</td>
+          <td>${row.casa}</td>
+          <td>${row.ospite}</td>
+          <td>${row.campo}</td>
+          <td>${row.categoria}</td>
+          <td>${row.punteggio}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    });
+  }
+
+  window.onload = function() {
+    caricaClassifica();
+    caricaCalendario();
+  };
 </script>
 
 </body>
