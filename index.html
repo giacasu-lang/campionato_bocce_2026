@@ -6,53 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #0a4d8c;
-      color: white;
-      padding: 15px;
-      text-align: center;
-    }
-    main {
-      padding: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #e6e6e6;
-    }
-    .admin {
-      margin-top: 30px;
-      padding: 15px;
-      background: #ffffff;
-      border: 2px solid #0a4d8c;
-    }
-    input, select, button {
-      padding: 6px;
-      margin: 4px;
-    }
-    button {
-      background: #0a4d8c;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #083b6d;
-    }
+    body { font-family: Arial; background: #f2f2f2; margin:0; padding:0; }
+    header { background: #0a4d8c; color: white; padding: 15px; text-align:center; }
+    main { padding: 20px; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { border:1px solid #ccc; padding:8px; text-align:center; }
+    th { background: #e6e6e6; }
+    .admin { margin-top:30px; padding:15px; background:white; border:2px solid #0a4d8c; }
+    input, select, button { padding:6px; margin:4px; }
+    button { background:#0a4d8c; color:white; border:none; cursor:pointer; }
+    button:hover { background:#083b6d; }
   </style>
 </head>
 
@@ -63,17 +26,11 @@
 </header>
 
 <main>
-
   <h2>Classifica</h2>
   <table id="classifica">
     <thead>
       <tr>
-        <th>Nome</th>
-        <th>Punti</th>
-        <th>Giocate</th>
-        <th>Vinte</th>
-        <th>Perse</th>
-        <th>Categoria</th>
+        <th>Nome</th><th>Punti</th><th>Giocate</th><th>Vinte</th><th>Perse</th><th>Categoria</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -81,40 +38,25 @@
 
   <div class="admin">
     <h2>Area Admin</h2>
-
-    <label>Nome:</label>
-    <input id="nome">
-
-    <label>Punti:</label>
-    <input id="punti" type="number">
-
-    <label>Giocate:</label>
-    <input id="giocate" type="number">
-
-    <label>Vinte:</label>
-    <input id="vinte" type="number">
-
-    <label>Perse:</label>
-    <input id="perse" type="number">
-
+    <label>Nome:</label><input id="nome">
+    <label>Punti:</label><input id="punti" type="number">
+    <label>Giocate:</label><input id="giocate" type="number">
+    <label>Vinte:</label><input id="vinte" type="number">
+    <label>Perse:</label><input id="perse" type="number">
     <label>Categoria:</label>
     <select id="categoria">
-      <option>A</option>
-      <option>B</option>
-      <option>C</option>
+      <option>A</option><option>B</option><option>C</option>
     </select>
-
     <br><br>
     <button onclick="salva()">Salva modifiche</button>
     <p id="msg"></p>
   </div>
-
 </main>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyylWtnPGCZFrxK_MAMvbCmf2QU4aKtk0k7pkUbQ99sP6gbEBuTdNDPqwHDkBncXpPo/exec";
+  // Link Web App aggiornato
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3nDDWgDJ1Z_nFi_EMzyt0LzcIQWt2PJhGGW5Sh_bh88ga8bpJA3BD9xdI-Baa_MFI/exec";
 
-  // Funzione per salvare modifiche admin
   async function salva() {
     const dati = {
       nome: document.getElementById("nome").value,
@@ -133,11 +75,9 @@
     const txt = await res.text();
     document.getElementById("msg").innerText = txt;
 
-    // Aggiorna classifica subito dopo salvataggio
     caricaClassifica();
   }
 
-  // Funzione per caricare automaticamente la classifica
   async function caricaClassifica() {
     const res = await fetch(SCRIPT_URL);
     const data = await res.json();
@@ -159,7 +99,6 @@
     });
   }
 
-  // Carica classifica all'apertura della pagina
   window.onload = caricaClassifica;
 </script>
 
